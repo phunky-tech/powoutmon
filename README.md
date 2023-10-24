@@ -6,7 +6,7 @@ PowOutMon (POWer OUTage MONitor) is a utility to allow devices running on a UPS/
 
 ### .env
 
-Create a `.env` file in the same directory as `client.sh`. It should look like so:
+Create a `.env` file in the same directory as `monitor.sh`. It should look like so:
 
 ```
 HOSTS="192.168.1.1 192.168.1.4 192.168.1.37"
@@ -22,7 +22,7 @@ MAX_ATTEMPTS=3
 Create a cron job as root (via `sudo crontab -e`) to run the script at a regular interval. The following example checks every 3 minutes.
 
 ```
-*/3 * * * * /path/to/powoutmon/client.sh
+*/3 * * * * /path/to/powoutmon/monitor.sh
 ```
 
 > NOTE: The cron job **must** be run as root. This ensures that the script has proper permission to shut down the machine without manual intervention.
@@ -30,3 +30,4 @@ Create a cron job as root (via `sudo crontab -e`) to run the script at a regular
 ## Roadmap/Ideas
 
 - [ ] Add an option to specify a "shutdown script". This could allow for the graceful shutdown of Docker or another sensitive program before forcing a system shutdown to help void corrupt data.
+- [ ] Add a "canary" script to send a WoL (Wake on LAN) reqeuest to specific hosts if they are offline. This would be helpful for when power comes back online, since devices connected to a UPS would have no way of knowing.
