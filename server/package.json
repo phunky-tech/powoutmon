@@ -1,0 +1,11 @@
+{
+  "name": "powoutmon",
+  "version": "1.0.0",
+  "description": "Simple client/server to allow graceful shutdown on backup power in the event of a power outage.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Phillip",
+  "license": "ISC"
+}
