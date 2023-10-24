@@ -1,29 +1,52 @@
-# This is to be run as a cron job every 2 minutes
+#!/bin/bash
 
-# Variables
+# Get hosts from .env
+source .env
+IFS=' ' read -r -a HOSTS_ARRAY <<<"$HOSTS"
 
-URL="http://localhost:3000/alive"
-
-# Functions
-
-# Prepend date/time in front of echo
+# Function to echo a message with the current time
 function echoWithTime() {
 	echo "PowOutMon_$(date +%Y-%m-%d_%H:%M:%S) - $1"
 }
 
-# Ping the server. If it does not respond with an HTTP 200 after 5 tries every 12 seconds, shut down the system
-# Otherwise, do nothing
+numAttempts=0
+# If .pomCache does not exist, create it
+if [ ! -f .pomCache ]; then
+	echoWithTime "Creating .pomCache"
+	touch .pomCache
+	echo "0" >.pomCache
+else
+	# Read the number of attempts from .pomCache
+	numAttempts=$(cat .pomCache)
+fi
 
-for i in {1..5}
-do
-  if [ $(curl -s -o /dev/null -w "%{http_code}" $URL) -eq 200 ]
-  then
-    echoWithTime "Server is up"
-    exit 0
-  fi
-  echoWithTime "No response from server. Attempt $i"
-  sleep 12
+# Read the file line by line
+for host in "${HOSTS_ARRAY[@]}"; do
+	# Ping the host with a timeout of 60 seconds
+	if ping -c 1 -W 60 "$host" >/dev/null; then
+		echoWithTime "Ping to $host successful."
+		# If numAttempts > 0, reset numAttempts to 0 and write it to .pomCache
+		if [ "$numAttempts" -gt 0 ]; then
+			echoWithTime "Resetting numAttempts to 0 and writing to .pomCache"
+			numAttempts=0
+			echo "$numAttempts" >.pomCache
+		fi
+		exit 0
+	fi
 done
 
-echoWithTime "Server is down. Shutting down system"
-# sudo shutdown -h now
+# If we reach this point, none of the hosts responded to ping within 60 seconds
+# Increment numAttempts and write it to .pomCache
+numAttempts=$((numAttempts + 1))
+echoWithTime "None of the hosts responded within 60 seconds. Incrementing numAttempts and writing to .pomCache"
+echo "$numAttempts" >.pomCache
+
+# If numAttempts < MAX_ATTEMPTS, increment numAttempts and write it to .pomCache
+if [ "$numAttempts" -lt "$MAX_ATTEMPTS" ]; then
+	echoWithTime "numAttempts < MAX_ATTEMPTS. Not shutting down."
+	exit 0
+fi
+
+# If we reach this point, numAttempts >= MAX_ATTEMPTS
+echoWithTime "numAttempts >= MAX_ATTEMPTS. Shutting down."
+sudo shutdown -h now
