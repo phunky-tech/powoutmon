@@ -2,7 +2,9 @@
 
 PowOutMon (POWer OUTage MONitor) is a utility to allow devices running on a UPS/backup power supply to detect a power outage, and shut down gracefully in such an event. It works by pinging the provided host(s) at a regular interval to check if they are still alive, but will shut down if they are not. The provided host(s) should be devices that are _not_ connected to backup power, meaning they will be offline in the event of a power outage. If and only if all provided host(s) are offline, then the tool will shut down the host machine.
 
-## Setup
+## Monitor Setup
+
+The following setup relates to `monitor.sh` and should be run on any machines connected to a UPS.
 
 ### .env
 
@@ -27,7 +29,32 @@ Create a cron job as root (via `sudo crontab -e`) to run the script at a regular
 
 > NOTE: The cron job **must** be run as root. This ensures that the script has proper permission to shut down the machine without manual intervention.
 
+## Canary Setup
+
+The following setup relates to `canary.sh` and should be run on any machines that are **not** connected to a UPS and that are set to turn on automatically when power is restored.
+
+### .env
+
+Create a `.env` file in the same director as `monitor.sh`. It should look like so:
+
+```
+MONITOR_IPS="192.168.1.4 192.168.1.27"
+MONITOR_MACS="FF:FF:FF:FF:FF:FF FF:FF:FF:FF:FF:FF"
+```
+
+Replace the ips and macs with your real ips and macs. The values in any given index should correspond to the same machine between the two (i.e. `MONITOR_IPS[1]` and `MONITOR_MACS[1]` both belong to the same device).
+
+### Cron
+
+Create a cron job (via `crontab -e`) to run the script at a regular interval. The following example checks every 5 minutes.
+
+```
+*/5 * * * * /path/to/powoutmon/canary.sh
+```
+
+Done!
+
 ## Roadmap/Ideas
 
 - [ ] Add an option to specify a "shutdown script". This could allow for the graceful shutdown of Docker or another sensitive program before forcing a system shutdown to help void corrupt data.
-- [ ] Add a "canary" script to send a WoL (Wake on LAN) reqeuest to specific hosts if they are offline. This would be helpful for when power comes back online, since devices connected to a UPS would have no way of knowing.
+- [x] Add a "canary" script to send a WoL (Wake on LAN) reqeuest to specific hosts if they are offline. This would be helpful for when power comes back online, since devices connected to a UPS would have no way of knowing.
