@@ -54,3 +54,6 @@ fi
 # If we reach this point, numAttempts >= MAX_ATTEMPTS
 echoWithTime "numAttempts >= MAX_ATTEMPTS. Shutting down."
 sudo shutdown -h now
+# If running in wsl,
+# cd /mnt/c/Windows/System32
+# ./shutdown.exe /s /t 0
