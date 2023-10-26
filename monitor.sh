@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Get hosts from .env
-source .env
+# Get hosts from .env or $1
+if [ -f "$1" ]; then
+	source "$1"
+else
+	source .env
+fi
 IFS=' ' read -r -a HOSTS_ARRAY <<<"$HOSTS"
 
 # Function to echo a message with the current time

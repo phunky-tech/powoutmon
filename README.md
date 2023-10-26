@@ -24,7 +24,7 @@ MAX_ATTEMPTS=3
 Create a cron job as root (via `sudo crontab -e`) to run the script at a regular interval. The following example checks every 3 minutes.
 
 ```
-*/3 * * * * /path/to/powoutmon/monitor.sh
+*/3 * * * * /path/to/powoutmon/monitor.sh /path/to/powoutmon/.env
 ```
 
 > NOTE: The cron job **must** be run as root. This ensures that the script has proper permission to shut down the machine without manual intervention.
@@ -49,7 +49,7 @@ Replace the ips and macs with your real ips and macs. The values in any given in
 Create a cron job (via `crontab -e`) to run the script at a regular interval. The following example checks every 5 minutes.
 
 ```
-*/5 * * * * /path/to/powoutmon/canary.sh
+*/5 * * * * /path/to/powoutmon/canary.sh /path/to/powoutmon/.env
 ```
 
 Done!
