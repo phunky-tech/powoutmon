@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Get MONITOR_IPS and MONITOR_MACS from .env
-source .env
+# Get MONITOR_IPS and MONITOR_MACS from .env or $1
+if [ -f "$1" ]; then
+	source "$1"
+else
+	source .env
+fi
 IFS=' ' read -r -a MONITOR_IPS_ARRAY <<<"$MONITOR_IPS"
 IFS=' ' read -r -a MONITOR_MACS_ARRAY <<<"$MONITOR_MACS"
 
